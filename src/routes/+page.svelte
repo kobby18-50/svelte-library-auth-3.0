@@ -1,34 +1,60 @@
 <script lang="ts">
-	import { Button, Card, Heading, Search, CardPlaceholder } from "flowbite-svelte";
-  import { ArrowRightOutline } from 'flowbite-svelte-icons';
+	import { Button, Card, Heading, Search, CardPlaceholder, ButtonGroup } from "flowbite-svelte";
+  import { ArrowRightOutline, SearchOutline } from 'flowbite-svelte-icons';
   import { Categories } from "$lib";
 	import type { BOOKS } from "../models/books.js";
   import EMPTY from '../assets/empty.svg'
 
 
   export let data
+
   const {books} = data
+
+  let searchValue = ''
+  $:searchValue = ''
+
   let sortGenre = 'All Books'
   $: sortGenre
 
   let filteredBooks:BOOKS[]
   $: filteredBooks = books.filter((book) => {
-    if(sortGenre === 'All Books'){
+    if(sortGenre === '' || sortGenre === 'All Books'){
       return book
+    }
+    else if(searchValue){
+      return book.title.includes(searchValue)
+
     }
     else{
       return book.genre.includes(sortGenre)
     }
   })
   
+
+  const handleSearch = () => {
+    filteredBooks = filteredBooks.filter((book) => {
+      if(searchValue){
+        return book.title.includes(searchValue)
+      }
+      else {
+        return book
+      }
+    })
+  }
+
   
   </script>
 
 
 
   <main class="mx-10">
-    <form id="example-form" class=" mt-5">
-      <Search/>
+  
+
+    <form class="flex gap-2 mt-5" on:submit={handleSearch}>
+      <Search size="lg" bind:value={searchValue} />
+      <Button class="!p-2.5" type='submit'>
+        <SearchOutline class="w-5 h-5" />
+      </Button>
     </form>
   
     
