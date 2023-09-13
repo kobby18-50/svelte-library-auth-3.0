@@ -2,17 +2,31 @@
 	import { goto } from "$app/navigation";
     import { BASE_URL, Categories } from "$lib";
 import axios from "axios";
-	import { Button, Heading, Input, Label, Select, Textarea } from "flowbite-svelte";
+	import { Alert, Button, Heading, Input, Label, Select, Textarea } from "flowbite-svelte";
+    import toast, { Toaster } from 'svelte-french-toast';
+	import { InfoCircleSolid } from "flowbite-svelte-icons";
 
-
+    let isFail = false
     let BOOKFORM = {
         title : '',
         genre : '',
         content : ''
     }
 
+    let bookValidator = {
+        titleValidator : '',
+        contentValidator : ''
+    }
+
     const handleAddBook = async () => {
         console.log(BOOKFORM)
+
+        if(BOOKFORM.title.length <= 8){
+            bookValidator.titleValidator = 'The minimum length of book title is 8 characters'
+        }
+        if(BOOKFORM.content.length <= 40){
+            bookValidator.contentValidator = 'The minimum length of book content is 40 characters'
+        }
 
         const data = {
             title : BOOKFORM.title,
@@ -26,16 +40,30 @@ import axios from "axios";
         .then((res) => {
 
             if(res.statusText === 'Created'){
+                toast.success('Book successfully created')
 
+              setTimeout(()=> {
                 goto('/auth/dashboard')
+              }, 2500)
             }
-            console.log(res.statusText )
+            console.log(res)
 
         })
-        .catch((err) => console.log(err))
+        .catch((err) =>{
+            isFail = true
+            console.log(err)
+            if(err.request.response.includes('Duplicate')){
+                toast.error('This title has already been used try a different one')
+            }else{
+                toast.error(err.message)
+
+            }
+        })
     }
 
 </script>
+
+<Toaster/>
 
 <main>
 
@@ -46,6 +74,14 @@ import axios from "axios";
         <div>
             <Label for='title'>Book title</Label>
             <Input id='title' placeholder='Grief Child' bind:value={BOOKFORM.title} required />
+
+            {#if isFail && bookValidator.titleValidator.length != 0}
+            <Alert color="red" dismissable class='mt-2'>
+                <InfoCircleSolid slot="icon" class="w-4 h-4" />
+                 {bookValidator.titleValidator}
+                <Button slot="close-button" size="xs" let:close on:click={close} class="ml-auto">X</Button>
+              </Alert>
+            {/if}
         </div>
 
         <div>
@@ -60,8 +96,15 @@ import axios from "axios";
         
         <div>
             <Label for='content'>Book Content</Label>
-            <Textarea id='content' placeholder='Book content' bind:value={BOOKFORM.content} required />
+            <Textarea id='content' placeholder='Book content' rows='4' bind:value={BOOKFORM.content} required />
             
+            {#if isFail && bookValidator.contentValidator.length != 0}
+            <Alert color="red" dismissable class='mt-2'>
+                <InfoCircleSolid slot="icon" class="w-4 h-4" />
+                 {bookValidator.contentValidator}
+                <Button slot="close-button" size="xs" let:close on:click={close} class="ml-auto">X</Button>
+              </Alert>
+            {/if}
         </div>
 
         <Button type='submit'>Add Book</Button>

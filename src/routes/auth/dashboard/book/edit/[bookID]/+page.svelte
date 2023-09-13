@@ -3,8 +3,10 @@
 	import axios from "axios";
 	import { onMount } from "svelte";
     import { page } from "$app/stores";
-	import { Button, Heading, Input, Label, Select, Textarea } from "flowbite-svelte";
+	import { Alert, Button, Heading, Input, Label, Select, Textarea } from "flowbite-svelte";
 	import { goto } from "$app/navigation";
+	import { InfoCircleSolid } from "flowbite-svelte-icons";
+	import toast, {Toaster} from "svelte-french-toast";
 
    
 
@@ -12,11 +14,22 @@
 
    let book = data.book
 
-    console.log(book)
+   let isFail = false
+
+   let editValidator = {
+        titleValidator : '',
+        contentValidator : ''
+    }
 
 
    
 const handleEdit = async () => {
+    if(book.title.length <= 8){
+            editValidator.titleValidator = 'The minimum length of book title is 8 characters'
+        }
+        if(book.content.length <= 40){
+            editValidator.contentValidator = 'The minimum length of book content is 40 characters'
+        }
     const data = {
         title : book.title,
         content : book.content,
@@ -26,15 +39,28 @@ const handleEdit = async () => {
 
     await axios.patch(`${BASE_URL}/books/${book._id}`, data, {headers : {Authorization : localStorage.getItem('token')}})
     .then((res) => {
-        console.log(res)
-        goto('/auth/dashboard')
+        if(res.status === 200){
+            toast.success('Book updated successfully')
+            setTimeout(() => {
+                goto('/auth/dashboard')
+            }, 2500)
+        }
     })
     .catch((err) => {
+        isFail = true
         console.log(err)
+        if(err.request.response.includes('Duplicate')){
+                toast.error('This title has already been used try a different one')
+            }else{
+                toast.error(err.message)
+
+            }
     })
 }
 
 </script>
+
+<Toaster/>
 
 
 
@@ -47,6 +73,14 @@ const handleEdit = async () => {
         <div>
             <Label for='title'>Book title</Label>
             <Input id='title' placeholder='Grief Child' bind:value={book.title} required />
+
+            {#if isFail && editValidator.titleValidator.length != 0}
+            <Alert color="red" dismissable class='mt-2'>
+                <InfoCircleSolid slot="icon" class="w-4 h-4" />
+                 {editValidator.titleValidator}
+                <Button slot="close-button" size="xs" let:close on:click={close} class="ml-auto">X</Button>
+              </Alert>
+            {/if}
         </div>
 
         <div>
@@ -61,7 +95,15 @@ const handleEdit = async () => {
         
         <div>
             <Label for='content'>Book Content</Label>
-            <Textarea id='content' placeholder='Book content' bind:value={book.content} required />
+            <Textarea id='content' placeholder='Book content' rows='5' bind:value={book.content} required />
+
+            {#if isFail && editValidator.contentValidator.length != 0}
+            <Alert color="red" dismissable class='mt-2'>
+                <InfoCircleSolid slot="icon" class="w-4 h-4" />
+                 {editValidator.contentValidator}
+                <Button slot="close-button" size="xs" let:close on:click={close} class="ml-auto">X</Button>
+              </Alert>
+            {/if}
             
         </div>
 

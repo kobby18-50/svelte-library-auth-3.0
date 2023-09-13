@@ -10,10 +10,6 @@ export const load = async ({params, fetch}) => {
 
     const book:BOOKS = res.book
 
-    console.log(book)
-
-
-
     return {
         book
     }

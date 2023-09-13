@@ -4,5 +4,5 @@ export interface BOOKS{
     content: string,
     genre : string,
     author : string,
-    year : string,
+    year : Date,
 }
