@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { Button, Card, Heading, Search, CardPlaceholder, ButtonGroup } from "flowbite-svelte";
+	import { Button, Card, Heading, Search, CardPlaceholder } from "flowbite-svelte";
   import { ArrowRightOutline, SearchOutline } from 'flowbite-svelte-icons';
   import { Categories } from "$lib";
 	import type { BOOKS } from "../models/books.js";
-  import EMPTY from '../assets/empty.svg'
+  
 	import EmptyCart from "../components/EmptyCart.svelte";
 
 
@@ -23,9 +23,6 @@
     if(sortGenre === '' || sortGenre === 'All Books'){
       return book
     }
-    // else if(){
-    //   return book
-    // }
     else if(searchValue){
       return book.title.includes(searchValue)
 
@@ -107,15 +104,7 @@
     
    {/if}
   </div>
-
-
-
-
-
-   
   </main>
 
-  <style>
-    
-  </style>
+  
   
