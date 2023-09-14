@@ -23,6 +23,7 @@
         <TableHeadCell>Title</TableHeadCell>
         <TableHeadCell>Genre</TableHeadCell>
         <TableHeadCell>Content</TableHeadCell>
+        <TableHeadCell>Action</TableHeadCell>
         
     </TableHead>
 

@@ -48,6 +48,8 @@
             isFail = true
             if(err.request.status === 404){
                 toast.error(`No user found with email : ${LOGINFORM.email} try creating an acount or try again`)
+            }else{
+                toast.error('Invalid Credentials')
             }
 
         })

@@ -4,6 +4,7 @@
   import { Categories } from "$lib";
 	import type { BOOKS } from "../models/books.js";
   import EMPTY from '../assets/empty.svg'
+	import EmptyCart from "../components/EmptyCart.svelte";
 
 
   export let data
@@ -17,10 +18,14 @@
   $: sortGenre
 
   let filteredBooks:BOOKS[]
+
   $: filteredBooks = books.filter((book) => {
     if(sortGenre === '' || sortGenre === 'All Books'){
       return book
     }
+    // else if(){
+    //   return book
+    // }
     else if(searchValue){
       return book.title.includes(searchValue)
 
@@ -42,6 +47,8 @@
     })
   }
 
+
+ 
   
   </script>
 
@@ -51,7 +58,7 @@
   
 
     <form class="flex gap-2 mt-5" on:submit={handleSearch}>
-      <Search size="lg" bind:value={searchValue} />
+      <Search size="lg" bind:value={searchValue} placeholder='Search by book title' />
       <Button class="!p-2.5" type='submit'>
         <SearchOutline class="w-5 h-5" />
       </Button>
@@ -60,7 +67,8 @@
     
     <!-- categories -->
 
-    <ul class="flex justify-between flex-wrap mt-5">
+    <ul class="flex mt-5 justify-between">
+      <li><button on:click={()=>{sortGenre = 'All Books'; console.log(sortGenre)}}>All Books</button></li>
       {#each Categories as {genre, id} (id) }
       <li>
         <button class="text capitalize" on:click={() => {sortGenre = genre}}>{genre}</button>
@@ -74,11 +82,8 @@
 
     <div class="grid md:grid-cols-3 md:gap-7">
    {#if filteredBooks.length === 0}
-
-   <figure class="h-screen mt-10">
-    <img src={EMPTY} alt="empty" class="">
-    <figcaption>No records to display</figcaption>
-   </figure>
+      <div></div>
+   <EmptyCart/>
 
    {:else}
 
