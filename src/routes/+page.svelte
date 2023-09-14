@@ -67,10 +67,10 @@
     
     <!-- categories -->
 
-    <ul class="flex mt-5 justify-between">
-      <li><button on:click={()=>{sortGenre = 'All Books'; console.log(sortGenre)}}>All Books</button></li>
+    <ul class="flex mt-5 justify-between flex-wrap">
+      <li class="hover:bg-primary-300 px-1.5 py-1 rounded-lg hover:transition hover: delay-150 hover:text-primary-800"><button on:click={()=>{sortGenre = 'All Books'}}>All Books</button></li>
       {#each Categories as {genre, id} (id) }
-      <li>
+      <li class="hover:bg-primary-300 px-1.5 py-1 rounded-lg hover:transition hover: delay-150 hover:text-primary-800">
         <button class="text capitalize" on:click={() => {sortGenre = genre}}>{genre}</button>
       </li>
     {/each}
@@ -114,4 +114,8 @@
 
    
   </main>
+
+  <style>
+    
+  </style>
   

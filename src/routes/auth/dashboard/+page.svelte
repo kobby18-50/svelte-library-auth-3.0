@@ -10,10 +10,10 @@
  
 </script>
 
-<main>Welcome - {user} </main>
+<main class="text-center">Welcome - {user} </main>
 
 
-<main>
+<main class="mx-10">
 
     <Button><a href="/auth/dashboard/add-book">Add book</a></Button>
 

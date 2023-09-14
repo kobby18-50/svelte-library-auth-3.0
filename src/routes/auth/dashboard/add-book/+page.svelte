@@ -67,9 +67,9 @@ import axios from "axios";
 
 <main>
 
-    <Heading tag='h6'>Add Book</Heading>
+    <Heading tag='h6' class='text-center mb-5'>Add Book</Heading>
 
-    <form on:submit|preventDefault={handleAddBook} class="grid gap-5 mx-10">
+    <form on:submit|preventDefault={handleAddBook} class="mx-10 grid grid-row-2 gap-5 md:mx-24 lg:mx-52">
 
         <div>
             <Label for='title'>Book title</Label>
