@@ -6,6 +6,7 @@
     import toast, {Toaster} from "svelte-french-toast";
     import { ExclamationCircleOutline } from 'flowbite-svelte-icons';
 	import { goto } from "$app/navigation";
+    import {user_token} from '$lib/stores/tokenStore.js'
 
     
     const {bookID} = $page.params
@@ -17,13 +18,15 @@
     let popupModal = false;
 
     $: isDelete = false
-   
+
+    const token = $user_token
+
 
     const handleDelete = async (id : string) => {
         popupModal = true
       
             await axios.delete(`${BASE_URL}/books/${id}`, {headers : {
-            Authorization : localStorage.getItem('token')
+            Authorization : `Bearer ${token}`
         }})
         .then((res) => {
             console.log(res)
@@ -50,7 +53,7 @@
     }
 
 
-    console.log(book.year)
+    
 
 </script>
 

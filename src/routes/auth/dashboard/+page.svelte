@@ -1,22 +1,24 @@
 <script lang="ts">
     import { Button, Table, TableBody, TableBodyCell, TableBodyRow, TableHead, TableHeadCell } from 'flowbite-svelte';
-    const user = localStorage.getItem('username')
+    import {user_name} from '$lib/stores/userStore.js'   
+
 
 
    export let data
 
    const {books} = data
 
+    const profile = $user_name
+
+    
+
  
 </script>
 
-<main class="text-center">Welcome - {user} </main>
+<main class="text-center">Welcome - {profile} </main>
 
 
 <main class="mx-10">
-
-    <Button><a href="/auth/dashboard/add-book">Add book</a></Button>
-
 
 <Table hoverable={true}>
     <TableHead>

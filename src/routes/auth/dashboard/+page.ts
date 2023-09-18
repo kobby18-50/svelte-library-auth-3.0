@@ -1,14 +1,17 @@
 import { BASE_URL } from "$lib"
 import axios from "axios"
 import type { BOOKS } from "../../../models/books"
+import {user_token} from '$lib/stores/tokenStore'
 
 export const load = async () => {
-    const response = await axios.get(`${BASE_URL}/books`, {headers : {Authorization : localStorage.getItem('token') as string}})
+    let token 
+    user_token.subscribe((value) => {
+        token = value
+    })
+
+    const response = await axios.get(`${BASE_URL}/books`, {headers : {Authorization : `Bearer ${token}`}})
 
     const books:BOOKS[] = await response.data.books
-
-
-    console.log(books)
 
     return {
         books

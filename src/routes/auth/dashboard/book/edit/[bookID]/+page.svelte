@@ -7,6 +7,7 @@
 	import { goto } from "$app/navigation";
 	import { InfoCircleSolid } from "flowbite-svelte-icons";
 	import toast, {Toaster} from "svelte-french-toast";
+    import {user_token} from '$lib/stores/tokenStore.js'
 
    
 
@@ -20,6 +21,11 @@
         titleValidator : '',
         contentValidator : ''
     }
+
+// token from store
+    const token = $user_token
+
+   
 
 
    
@@ -37,7 +43,7 @@ const handleEdit = async () => {
     }
 
 
-    await axios.patch(`${BASE_URL}/books/${book._id}`, data, {headers : {Authorization : localStorage.getItem('token')}})
+    await axios.patch(`${BASE_URL}/books/${book._id}`, data, {headers : {Authorization : `Bearer ${token}`}})
     .then((res) => {
         if(res.status === 200){
             toast.success('Book updated successfully')

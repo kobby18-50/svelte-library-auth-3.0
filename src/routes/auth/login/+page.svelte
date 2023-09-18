@@ -5,6 +5,8 @@
 	import { goto } from "$app/navigation";
 	import { InfoCircleSolid } from "flowbite-svelte-icons";
     import toast, { Toaster } from 'svelte-french-toast';
+    import {user_name} from '$lib/stores/userStore'
+    import {user_token} from '$lib/stores/tokenStore'
 
 
 
@@ -35,18 +37,26 @@
             const userFirst = res.data.user.firstname
             const userLast = res.data.user.lastname
             const user = userFirst.concat(' ', userLast)
-            localStorage.setItem('token', `Bearer ${token}` )
-            localStorage.setItem('username', user)
+          
+            user_name.set(user)
 
+            user_token.set(token)
+
+            
+            
             toast.success('Login successful')
 
            setTimeout(() => {
             goto('/auth/dashboard')
-           }, 2500)
+           }, 2000)
+
+
+
         })
         .catch((err) => {
             isFail = true
-            if(err.request.status === 404){
+            console.log(err)
+            if(err.request?.status === 404){
                 toast.error(`No user found with email : ${LOGINFORM.email} try creating an acount or try again`)
             }else{
                 toast.error('Invalid Credentials')

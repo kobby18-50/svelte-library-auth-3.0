@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
     import { BASE_URL, Categories } from "$lib";
-import axios from "axios";
+    import {user_token} from '$lib/stores/tokenStore'
+    import axios from "axios";
 	import { Alert, Button, Heading, Input, Label, Select, Textarea } from "flowbite-svelte";
     import toast, { Toaster } from 'svelte-french-toast';
 	import { InfoCircleSolid } from "flowbite-svelte-icons";
@@ -34,9 +35,9 @@ import axios from "axios";
             genre : BOOKFORM.genre
         }
 
-        const authorization = localStorage.getItem('token')
+        const authorization = $user_token
 
-        await axios.post(`${BASE_URL}/books`, data, { headers : {Authorization : authorization}})
+        await axios.post(`${BASE_URL}/books`, data, { headers : {Authorization : `Bearer ${authorization}`}})
         .then((res) => {
 
             if(res.statusText === 'Created'){
@@ -60,7 +61,6 @@ import axios from "axios";
             }
         })
     }
-
 </script>
 
 <Toaster/>
