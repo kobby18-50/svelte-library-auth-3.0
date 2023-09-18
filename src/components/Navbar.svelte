@@ -1,17 +1,27 @@
 <script lang="ts">
     import {user_name} from '$lib/stores/userStore'
-	import { Button } from "flowbite-svelte";
+	import { Button, Avatar, Dropdown, DropdownItem } from "flowbite-svelte";
     import LOGO from '../assets/logo.svg'
 	import { goto } from '$app/navigation';
     import toast, { Toaster } from 'svelte-french-toast';
 
 
 
-    let name 
+    let name:string = ''
+    let userfull:string = ''
 
     user_name.subscribe(value => {
         name = value
+
+        userfull = name
+
+        let first = name.split(' ')[0]?.charAt(0)
+        let second = name.split(' ')[1]?.charAt(0)
+
+        name = first.concat(second)
+
     })
+
 
     const handleLogout = () => {
        user_name.update((value) => {
@@ -37,15 +47,28 @@
 
     </div>
 
-   {#if name.length === 0}
+   {#if userfull.length === 0}
    <Button><a href="/auth/login">Login</a></Button>
 
    {:else}
 
    
-   <div class="flex space-x-4 ">
-    <Button size='xs'><a href="/auth/dashboard/add-book">Add book</a></Button>
-   <Button size='xs' on:click={handleLogout}>Log out</Button>
+   <div class="hover:cursor-pointer">
+    <Avatar class='acs' dot={{color : 'green'}}>{name}</Avatar>
+    <Dropdown triggeredBy = '.acs'>
+        <div slot="header" class="px-4 py-2">
+            <span>{userfull}</span>
+        </div>
+
+        <DropdownItem>
+            <a href="/auth/dashboard/add-book">Add Book</a>
+        </DropdownItem>
+
+        <DropdownItem slot = 'footer' on:click={handleLogout}>
+            Sign Out
+        </DropdownItem>
+
+    </Dropdown>
    </div>
     
    {/if}
