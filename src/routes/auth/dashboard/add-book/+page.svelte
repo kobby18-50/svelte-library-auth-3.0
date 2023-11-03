@@ -22,7 +22,7 @@
 
     const handleAddBook = async () => {
         isLoading = true
-        console.log(BOOKFORM)
+       
 
         if(BOOKFORM.title.length <= 8){
             bookValidator.titleValidator = 'The minimum length of book title is 8 characters'
@@ -50,12 +50,12 @@
                 goto('/auth/dashboard')
               
             }
-            console.log(res)
+           
 
         })
         .catch((err) =>{
             isFail = true
-            console.log(err)
+           
             isLoading = false
             if(err.request.response.includes('Duplicate')){
                 toast.error('This title has already been used try a different one')

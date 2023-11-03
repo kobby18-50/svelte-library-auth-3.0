@@ -53,14 +53,10 @@
         .catch((err) => {
             isFail = true
             isLoading = false
-            // if(err.request.response.includes('Duplicate')){
-            //     formValidator.emailValidator = `An account already exists with ${REGISTERFORM.email} choose a different one`
-            // }
-
-            // formValidator.emailValidator
+            
 
             toast.error(err.response.data.msg)
-            // console.log(err)
+            
             
         })
     }

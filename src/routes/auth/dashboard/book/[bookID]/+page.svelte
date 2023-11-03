@@ -33,17 +33,16 @@
           if(res.status === 200){
             toast.success('Book deleted')
           }
-           setTimeout(()=> {
+          
             goto('/auth/dashboard')
-           }, 2000)
+           
             
         })
         .catch((err) => {
-            console.log(err)
+            
         })
         
 
-        console.log(isDelete)
     }
 
 

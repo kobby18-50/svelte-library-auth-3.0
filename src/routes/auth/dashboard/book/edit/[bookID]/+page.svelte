@@ -61,7 +61,7 @@ const handleEdit = async () => {
     .catch((err) => {
         isFail = true
         isLoading = false
-        console.log(err)
+      
         if(err.request.response.includes('Duplicate')){
                 toast.error('This title has already been used try a different one')
             }else{

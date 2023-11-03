@@ -12,7 +12,7 @@ export const load = async ({params} : LoadEvent) => {
         token = value
     })
 
-    console.log(token)
+    
 
     const {bookID} = params
 

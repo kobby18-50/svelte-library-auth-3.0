@@ -59,7 +59,7 @@
         .catch((err) => {
             isFail = true
             isLoading = false
-            console.log(err)
+           
             if(err.request?.status === 404){
                 toast.error(`No user found with email : ${LOGINFORM.email} try creating an acount or try again`)
             }else{
