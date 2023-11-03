@@ -3,7 +3,7 @@
 	import { Heading } from 'flowbite-svelte';
     import SERVER_DOWN from '../assets/server_err.svg'
 
-    console.log($page)
+
 
 </script>
 
