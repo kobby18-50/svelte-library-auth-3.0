@@ -1,11 +1,14 @@
 <script>
-	import { Input, Label, Button, Heading, Alert } from "flowbite-svelte";
+	import { Input, Label, Button, Heading, Alert, Spinner } from "flowbite-svelte";
     import { InfoCircleSolid } from 'flowbite-svelte-icons';
     import toast, { Toaster } from 'svelte-french-toast';
     import axios from "axios";
 	import { BASE_URL } from "$lib";
 	import { goto } from "$app/navigation";
 
+
+
+    let isLoading = false
 
     $: isSuccess = false
     let isFail = false
@@ -24,6 +27,7 @@
     }
 
     const handleRegister = async () => {
+        isLoading = true
         console.log(REGISTERFORM)
         if(REGISTERFORM.firstname.length <= 5){
             formValidator.fnameValidator = 'The minimum length of firstname is 5 characters'
@@ -31,7 +35,7 @@
         if(REGISTERFORM.lastname.length <= 5){
             formValidator.lnameValidator = 'The minimum length of lastname is 5 characters'
         }
-        if(REGISTERFORM.password.length <=8){
+        if(REGISTERFORM.password.length < 8){
             formValidator.passwordValidator = 'The minimum length of password is 8 characters'
         }
         const data = {
@@ -42,21 +46,25 @@
         }
         await axios.post(`${BASE_URL}/auth/register`, data )
         .then((res) => {
-            console.log(res)
             toast.success('User successfully created')
+            isLoading = false
             goto('/auth/login')
         })
         .catch((err) => {
             isFail = true
-            if(err.request.response.includes('Duplicate')){
-                formValidator.emailValidator = `An account already exists with ${REGISTERFORM.email} choose a different one`
-            }
+            isLoading = false
+            // if(err.request.response.includes('Duplicate')){
+            //     formValidator.emailValidator = `An account already exists with ${REGISTERFORM.email} choose a different one`
+            // }
 
-            toast.error(err.message)
-            console.log(err)
+            // formValidator.emailValidator
+
+            toast.error(err.response.data.msg)
+            // console.log(err)
             
         })
     }
+
 </script>
 
 <Toaster/>
@@ -119,7 +127,17 @@
     </div>
 
 
+    {#if isLoading}
+    <Button disabled>
+        <Spinner class="mr-3" size="4" color="white" />
+        Loading ...
+      </Button>
+    {:else}
+
     <Button type='submit'>Register</Button>
+        
+    {/if}
+
     <div>
         <span class="text-sm">Login if you already have an account. <a href="/auth/login" class="underline">Login</a></span>
     </div>

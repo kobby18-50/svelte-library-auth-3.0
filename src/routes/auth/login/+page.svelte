@@ -1,5 +1,5 @@
 <script>
-	import { Label, Input, Button, Heading, Alert } from "flowbite-svelte";
+	import { Label, Input, Button, Heading, Alert, Spinner } from "flowbite-svelte";
     import axios from "axios";
 	import { BASE_URL } from "$lib";
 	import { goto } from "$app/navigation";
@@ -9,6 +9,8 @@
     import {user_token} from '$lib/stores/tokenStore'
 
 
+
+    let isLoading = false
 
     let isFail = false
     let LOGINFORM = {
@@ -24,7 +26,8 @@
 
 
     const handleSubmit = async () => {
-        if(LOGINFORM.password.length <= 8){
+        isLoading = true
+        if(LOGINFORM.password.length < 8){
             formValidator.passwordValidator = 'The minimum length of password is 8 characters'
         }
         const data = {
@@ -46,15 +49,16 @@
             
             toast.success('Login successful')
 
-           setTimeout(() => {
+            isLoading = false
             goto('/auth/dashboard')
-           }, 2000)
+           
 
 
 
         })
         .catch((err) => {
             isFail = true
+            isLoading = false
             console.log(err)
             if(err.request?.status === 404){
                 toast.error(`No user found with email : ${LOGINFORM.email} try creating an acount or try again`)
@@ -92,7 +96,18 @@
     </div>
 
 
+    
+    {#if isLoading}
+    <Button disabled>
+        <Spinner class="mr-3" size="4" color="white" />
+        Logging in Please Wait ...
+    </Button>
+    {:else}
+    
     <Button type='submit'>Login</Button>
+    
+        
+    {/if}
     <div>
         <span class="text-sm">Don't have an account? <a href="/auth/register" class="underline"> Register here</a></span>
     </div>

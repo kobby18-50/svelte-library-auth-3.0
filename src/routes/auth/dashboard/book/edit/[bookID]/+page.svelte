@@ -3,7 +3,7 @@
 	import axios from "axios";
 	import { onMount } from "svelte";
     import { page } from "$app/stores";
-	import { Alert, Button, Heading, Input, Label, Select, Textarea } from "flowbite-svelte";
+	import { Alert, Button, Heading, Input, Label, Select, Spinner, Textarea } from "flowbite-svelte";
 	import { goto } from "$app/navigation";
 	import { InfoCircleSolid } from "flowbite-svelte-icons";
 	import toast, {Toaster} from "svelte-french-toast";
@@ -25,11 +25,16 @@
 // token from store
     const token = $user_token
 
+
+
+    let isLoading = false
+
    
 
 
    
 const handleEdit = async () => {
+    isLoading = true
     if(book.title.length <= 8){
             editValidator.titleValidator = 'The minimum length of book title is 8 characters'
         }
@@ -46,14 +51,16 @@ const handleEdit = async () => {
     await axios.patch(`${BASE_URL}/books/${book._id}`, data, {headers : {Authorization : `Bearer ${token}`}})
     .then((res) => {
         if(res.status === 200){
+            isLoading = false
             toast.success('Book updated successfully')
-            setTimeout(() => {
+           
                 goto('/auth/dashboard')
-            }, 2500)
+            
         }
     })
     .catch((err) => {
         isFail = true
+        isLoading = false
         console.log(err)
         if(err.request.response.includes('Duplicate')){
                 toast.error('This title has already been used try a different one')
@@ -113,7 +120,20 @@ const handleEdit = async () => {
             
         </div>
 
+        {#if isLoading}
+        <Button disabled >
+            <Spinner class="mr-3" size="4" color="white" />
+            Updating Book Please wait ...
+        </Button>
+        {:else}
+        
         <Button type='submit'>Edit Book</Button>
+        
+        
+        
+            
+        {/if}
+
         
 
 

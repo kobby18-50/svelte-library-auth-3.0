@@ -3,11 +3,12 @@
     import { BASE_URL, Categories } from "$lib";
     import {user_token} from '$lib/stores/tokenStore'
     import axios from "axios";
-	import { Alert, Button, Heading, Input, Label, Select, Textarea } from "flowbite-svelte";
+	import { Alert, Button, Heading, Input, Label, Select, Spinner, Textarea } from "flowbite-svelte";
     import toast, { Toaster } from 'svelte-french-toast';
 	import { InfoCircleSolid } from "flowbite-svelte-icons";
 
     let isFail = false
+    let isLoading = false
     let BOOKFORM = {
         title : '',
         genre : '',
@@ -20,6 +21,7 @@
     }
 
     const handleAddBook = async () => {
+        isLoading = true
         console.log(BOOKFORM)
 
         if(BOOKFORM.title.length <= 8){
@@ -40,12 +42,13 @@
         await axios.post(`${BASE_URL}/books`, data, { headers : {Authorization : `Bearer ${authorization}`}})
         .then((res) => {
 
-            if(res.statusText === 'Created'){
+            if(res.status === 201){
                 toast.success('Book successfully created')
 
-              setTimeout(()=> {
+                isLoading = false
+              
                 goto('/auth/dashboard')
-              }, 2500)
+              
             }
             console.log(res)
 
@@ -53,6 +56,7 @@
         .catch((err) =>{
             isFail = true
             console.log(err)
+            isLoading = false
             if(err.request.response.includes('Duplicate')){
                 toast.error('This title has already been used try a different one')
             }else{
@@ -107,14 +111,19 @@
             {/if}
         </div>
 
-        <Button type='submit'>Add Book</Button>
-        
 
-
-
-
+        {#if isLoading}
+    <Button disabled>
+        <Spinner class="mr-3" size="4" color="white" />
+        Adding Book Please wait ...
+    </Button>
+    {:else}
     
-
+    
+    <Button type='submit'>Add Book</Button>
+    
+        
+    {/if}
     </form>
     
 </main>
