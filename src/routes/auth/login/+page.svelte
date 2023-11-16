@@ -7,35 +7,43 @@
     import toast, { Toaster } from 'svelte-french-toast';
     import {user_name} from '$lib/stores/userStore'
     import {user_token} from '$lib/stores/tokenStore'
-
+    import { createForm } from 'felte'
+    import { validator } from '@felte/validator-yup'
+    import * as yup from 'yup'
+    import { reporter, ValidationMessage } from '@felte/reporter-svelte'
 
 
     let isLoading = false
 
-    let isFail = false
-    let LOGINFORM = {
-        email : '',
-        password : ''
-    }
-
-    let formValidator = {
-        emailValidator : '',
-        passwordValidator : ''
-    }
+    // yup schema
+    const schema = yup.object().shape({
+        email : yup.string().email().required('Email is required'),
+        password : yup.string().min(8).required('Password is required')
+    })
 
 
+    // felte form 
+    const { form, isValid } = createForm({
+        initialValues : {
+            email : '',
+            password : ''
+        },
 
-    const handleSubmit = async () => {
-        isLoading = true
-        if(LOGINFORM.password.length < 8){
-            formValidator.passwordValidator = 'The minimum length of password is 8 characters'
-        }
-        const data = {
-            email : LOGINFORM.email,
-            password : LOGINFORM.password
-        }
-        await axios.post(`${BASE_URL}/auth/login`, data)
-        .then((res) => {
+
+
+        onSubmit(values, context){
+            const { email, password } = values
+            
+
+            const data = {
+                email, 
+                password
+            }
+
+            isLoading = true
+
+            axios.post(`${BASE_URL}/auth/login`, data)
+            .then((res) => {
             const token = res.data.token
             const userFirst = res.data.user.firstname
             const userLast = res.data.user.lastname
@@ -51,24 +59,29 @@
 
             isLoading = false
             goto('/auth/dashboard')
-           
-
-
-
-        })
-        .catch((err) => {
-            isFail = true
+            })
+            .catch((err) => {
             isLoading = false
-           
-            if(err.request?.status === 404){
-                toast.error(`No user found with email : ${LOGINFORM.email} try creating an acount or try again`)
-            }else{
-                toast.error('Invalid Credentials')
-            }
+            toast.error('Invalid Credentials')
 
-        })
+            })
+        },
 
-    }
+        onError(err,context){
+            console.log(err)
+            console.log(context)
+            toast.error('Invalid Credentials')
+            isLoading = false
+
+
+        },
+
+
+        extend : [
+            validator({schema}), reporter
+        ]
+
+    })
 
 </script>
 <Toaster/>
@@ -76,23 +89,37 @@
 <Heading tag='h4' class='text-center mb-5'>Login</Heading>
 
 
-<form on:submit|preventDefault={handleSubmit} class="mx-10 grid grid-row-2 gap-5 md:mx-24 lg:mx-52">
+<form use:form class="mx-10 grid grid-row-2 gap-5 md:mx-24 lg:mx-52">
     <div>
         <Label id='email' class='mb-2'>Email</Label>
-        <Input type='email' placeholder='eddy@mail.com' bind:value={LOGINFORM.email} required />
+        <Input type='email' placeholder='eddy@mail.com' name='email' required />
+        <ValidationMessage for='email' let:messages={message}>
+            {#if message}
+                <Alert>
+                    {message || ''}
+                </Alert>
+            {/if}
+        </ValidationMessage>
     </div>
 
     <div>
         <Label id='password' class='mb-2'>Password</Label>
-        <Input type='password' placeholder='********' bind:value={LOGINFORM.password} required />
+        <Input type='password' placeholder='********' name ='password' required />
+        <ValidationMessage for='password' let:messages={message}>
+            {#if message}
+                <Alert>
+                    {message || ''}
+                </Alert>
+            {/if}
+        </ValidationMessage>
 
-        {#if isFail && formValidator.passwordValidator.length != 0}
+        <!-- {#if isFail && formValidator.passwordValidator.length != 0}
         <Alert color="red" dismissable class='mt-2'>
             <InfoCircleSolid slot="icon" class="w-4 h-4" />
              {formValidator.passwordValidator}
             <Button slot="close-button" size="xs" let:close on:click={close} class="ml-auto">X</Button>
           </Alert>
-        {/if}
+        {/if} -->
     </div>
 
 
@@ -104,7 +131,7 @@
     </Button>
     {:else}
     
-    <Button type='submit'>Login</Button>
+    <Button disabled = { $isValid ? false : true} type='submit'>Login</Button>
     
         
     {/if}
