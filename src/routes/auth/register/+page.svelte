@@ -28,7 +28,7 @@
 
     const handleRegister = async () => {
         isLoading = true
-        console.log(REGISTERFORM)
+        // console.log(REGISTERFORM)
         if(REGISTERFORM.firstname.length <= 5){
             formValidator.fnameValidator = 'The minimum length of firstname is 5 characters'
         }
