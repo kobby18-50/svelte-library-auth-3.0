@@ -1,65 +1,62 @@
 <script>
 	import { Input, Label, Button, Heading, Alert, Spinner } from "flowbite-svelte";
-    import { InfoCircleSolid } from 'flowbite-svelte-icons';
     import toast, { Toaster } from 'svelte-french-toast';
     import axios from "axios";
 	import { BASE_URL } from "$lib";
 	import { goto } from "$app/navigation";
+    import * as yup from 'yup'
+    import { createForm } from "felte";
+    import { reporter, ValidationMessage } from "@felte/reporter-svelte";
+    import { validator } from "@felte/validator-yup";
 
 
 
     let isLoading = false
 
-    $: isSuccess = false
-    let isFail = false
-    let REGISTERFORM = {
-        firstname : '',
-        lastname : '',
-        email : '',
-        password : ''
-    }
+    const schema = yup.object().shape({
+        firstname : yup.string().min(5, 'First name must be at least 5 characters long').required('First name is required'),
+        lastname : yup.string().min(5, 'Last name must be at least 5 characters long').required('Last name is required'),
+        email : yup.string().email('Email must be a valid email').required('Email is required'),
+        password : yup.string().min(8, 'Password must be at least 8 characters long').required('Password is required')
+    })
 
-    let formValidator = {
-        fnameValidator : '',
-        lnameValidator : '',
-        emailValidator : '',
-        passwordValidator : ''
-    }
 
-    const handleRegister = async () => {
-        isLoading = true
-        // console.log(REGISTERFORM)
-        if(REGISTERFORM.firstname.length <= 5){
-            formValidator.fnameValidator = 'The minimum length of firstname is 5 characters'
-        }
-        if(REGISTERFORM.lastname.length <= 5){
-            formValidator.lnameValidator = 'The minimum length of lastname is 5 characters'
-        }
-        if(REGISTERFORM.password.length < 8){
-            formValidator.passwordValidator = 'The minimum length of password is 8 characters'
-        }
-        const data = {
-            firstName : REGISTERFORM.firstname,
-            lastName : REGISTERFORM.lastname,
-            email : REGISTERFORM.email,
-            password : REGISTERFORM.password
-        }
-        await axios.post(`${BASE_URL}/auth/register`, data )
+    const { form, isValid } = createForm({
+        initialValues : {
+            firstname : '',
+            lastname : '',
+            email : '',
+            password : ''
+        },
+
+        onSubmit(values, context){
+            const { firstname, lastname, email, password } = values
+            const data = {
+                firstName : firstname,
+                lastName : lastname,
+                email,
+                password
+            }
+
+            isLoading = true
+
+        axios.post(`${BASE_URL}/auth/register`, data )
         .then((res) => {
             toast.success('User successfully created')
             isLoading = false
             goto('/auth/login')
         })
         .catch((err) => {
-            isFail = true
             isLoading = false
-            
-
             toast.error(err.response.data.msg)
-            
-            
         })
-    }
+        },
+
+        extend : [
+            validator({schema}), reporter
+        ]
+
+    })   
 
 </script>
 
@@ -67,59 +64,60 @@
 
 <Heading tag='h4' class='text-center mb-5'>Register</Heading>
 
-<form on:submit|preventDefault={handleRegister} class="mx-10 grid gap-5 md:mx-24 lg:mx-52">
+<form use:form class="mx-10 grid gap-5 md:mx-24 lg:mx-52">
    
     <div>
         <Label for='first name' class='mb-2'>First Name</Label>
-        <Input id='first name' placeholder = 'Edward' bind:value={REGISTERFORM.firstname} required />
+        <Input id='first name' placeholder = 'Edward' name='firstname'  required />
+        <ValidationMessage for ='firstname' let:messages={message}>
+            {#if message}
+            <Alert class='mt-2'>
+                <span>{message || ''}</span>
+            </Alert>
+            {/if}
+        </ValidationMessage>
 
-        {#if isFail && formValidator.fnameValidator.length != 0}
-        <Alert color="red" dismissable class='mt-2'>
-            <InfoCircleSolid slot="icon" class="w-4 h-4" />
-            {formValidator.fnameValidator} 
-            <Button slot="close-button" size="xs" let:close on:click={close} class="ml-auto">X</Button>
-          </Alert>
-            
-        {/if}
+        
     </div>
    
 
     <div>
         <Label for='last name' class='mb-2'>Last Name</Label>
-        <Input id='last name' placeholder = 'Tackie' bind:value={REGISTERFORM.lastname} required />
-        {#if isFail && formValidator.lnameValidator.length != 0}
-        <Alert color="red" dismissable class='mt-2'>
-            <InfoCircleSolid slot="icon" class="w-4 h-4" />
-            {formValidator.lnameValidator} 
-            <Button slot="close-button" size="xs" let:close on:click={close} class="ml-auto">X</Button>
-          </Alert>
-            
-        {/if}
+        <Input id='last name' placeholder = 'Tackie' name = 'lastname'  required />
+        <ValidationMessage for ='lastname' let:messages={message}>
+            {#if message}
+            <Alert class='mt-2'>
+                <span>{message || ''}</span>
+            </Alert>
+            {/if}
+        </ValidationMessage>
+        
     </div>
 
     <div>
         <Label for='email' class='mb-2'>Email</Label>
-        <Input id='email' type='email' placeholder = 'edward@mail.com' bind:value={REGISTERFORM.email} required/>
-        {#if isFail && formValidator.emailValidator.length != 0}
-    
-             <Alert color="red" dismissable class='mt-2'>
-            <InfoCircleSolid slot="icon" class="w-4 h-4" />
-             {formValidator.emailValidator}
-            <Button slot="close-button" size="xs" let:close on:click={close} class="ml-auto">X</Button>
-          </Alert>
-        {/if}
+        <Input id='email' type='email' placeholder = 'edward@mail.com' name='email' required/>
+        <ValidationMessage for ='email' let:messages={message}>
+            {#if message}
+            <Alert class='mt-2'>
+                <span>{message || ''}</span>
+            </Alert>
+            {/if}
+        </ValidationMessage>
+        
     </div>
 
     <div>
         <Label for='password' class='mb-2'>Password</Label>
-        <Input id='password' type='password' placeholder = '********' bind:value={REGISTERFORM.password} required/>
-        {#if isFail && formValidator.passwordValidator.length}
-        <Alert color="red" dismissable class='mt-2'>
-            <InfoCircleSolid slot="icon" class="w-4 h-4" />
-             {formValidator.passwordValidator}
-            <Button slot="close-button" size="xs" let:close on:click={close} class="ml-auto">X</Button>
-          </Alert>
-        {/if}
+        <Input id='password' type='password' name = 'password' placeholder = '********' required/>
+        <ValidationMessage for ='password' let:messages={message}>
+            {#if message}
+            <Alert class='mt-2'>
+                <span>{message || ''}</span>
+            </Alert>
+            {/if}
+        </ValidationMessage>
+        
     </div>
 
 
@@ -130,7 +128,7 @@
       </Button>
     {:else}
 
-    <Button type='submit'>Register</Button>
+    <Button disabled = {$isValid ? false : true} type='submit'>Register</Button>
         
     {/if}
 
