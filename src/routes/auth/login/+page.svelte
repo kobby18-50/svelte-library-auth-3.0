@@ -3,7 +3,6 @@
     import axios from "axios";
 	import { BASE_URL } from "$lib";
 	import { goto } from "$app/navigation";
-	import { InfoCircleSolid } from "flowbite-svelte-icons";
     import toast, { Toaster } from 'svelte-french-toast';
     import {user_name} from '$lib/stores/userStore'
     import {user_token} from '$lib/stores/tokenStore'
@@ -17,8 +16,8 @@
 
     // yup schema
     const schema = yup.object().shape({
-        email : yup.string().email().required('Email is required'),
-        password : yup.string().min(8).required('Password is required')
+        email : yup.string().email('Email must be a valid email').required('Email is required'),
+        password : yup.string().min(8, ).required('Password is required')
     })
 
 
@@ -67,16 +66,6 @@
             })
         },
 
-        onError(err,context){
-            console.log(err)
-            console.log(context)
-            toast.error('Invalid Credentials')
-            isLoading = false
-
-
-        },
-
-
         extend : [
             validator({schema}), reporter
         ]
@@ -95,8 +84,8 @@
         <Input type='email' placeholder='eddy@mail.com' name='email' required />
         <ValidationMessage for='email' let:messages={message}>
             {#if message}
-                <Alert>
-                    {message || ''}
+                <Alert class='mt-2'>
+                   <span> {message || ''}</span>
                 </Alert>
             {/if}
         </ValidationMessage>
@@ -107,19 +96,11 @@
         <Input type='password' placeholder='********' name ='password' required />
         <ValidationMessage for='password' let:messages={message}>
             {#if message}
-                <Alert>
-                    {message || ''}
+                <Alert class='mt-2'>
+                    <span>{message || ''}</span>
                 </Alert>
             {/if}
         </ValidationMessage>
-
-        <!-- {#if isFail && formValidator.passwordValidator.length != 0}
-        <Alert color="red" dismissable class='mt-2'>
-            <InfoCircleSolid slot="icon" class="w-4 h-4" />
-             {formValidator.passwordValidator}
-            <Button slot="close-button" size="xs" let:close on:click={close} class="ml-auto">X</Button>
-          </Alert>
-        {/if} -->
     </div>
 
 
