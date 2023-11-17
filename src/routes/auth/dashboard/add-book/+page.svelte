@@ -5,42 +5,46 @@
     import axios from "axios";
 	import { Alert, Button, Heading, Input, Label, Select, Spinner, Textarea } from "flowbite-svelte";
     import toast, { Toaster } from 'svelte-french-toast';
-	import { InfoCircleSolid } from "flowbite-svelte-icons";
+    import { createForm } from 'felte'
+    import { validator } from '@felte/validator-yup'
+    import * as yup from 'yup'
+    import { reporter, ValidationMessage } from '@felte/reporter-svelte'
 
-    let isFail = false
+
+
     let isLoading = false
-    let BOOKFORM = {
-        title : '',
-        genre : '',
-        content : ''
-    }
 
-    let bookValidator = {
-        titleValidator : '',
-        contentValidator : ''
-    }
 
-    const handleAddBook = async () => {
-        isLoading = true
-       
+    // yup schema
+    const schema = yup.object().shape({
+        title : yup.string().min(8, 'Title must be at least 8 characters long').required('Title is required'),
+        content : yup.string().min(40, 'Content must be at least 40 characters long').required('Content is required'),
+        genre : yup.string().required('Genre is required')
 
-        if(BOOKFORM.title.length <= 8){
-            bookValidator.titleValidator = 'The minimum length of book title is 8 characters'
-        }
-        if(BOOKFORM.content.length <= 40){
-            bookValidator.contentValidator = 'The minimum length of book content is 40 characters'
-        }
+    })
 
-        const data = {
-            title : BOOKFORM.title,
-            content : BOOKFORM.content,
-            genre : BOOKFORM.genre
-        }
+    const { form, isValid } = createForm({
+        initialValues:{
+            title : '',
+            content : '',
+            genre : ''
+        },
 
-        const authorization = $user_token
+        onSubmit(values, context) {
 
-        await axios.post(`${BASE_URL}/books`, data, { headers : {Authorization : `Bearer ${authorization}`}})
-        .then((res) => {
+            const { title, genre, content} = values
+            
+            const data = {
+                title,
+                genre, 
+                content
+            }
+
+            const authorization = $user_token
+            isLoading = true
+
+            axios.post(`${BASE_URL}/books`, data, { headers : {Authorization : `Bearer ${authorization}`}})
+            .then((res) => {
 
             if(res.status === 201){
                 toast.success('Book successfully created')
@@ -53,9 +57,7 @@
            
 
         })
-        .catch((err) =>{
-            isFail = true
-           
+        .catch((err) =>{           
             isLoading = false
             if(err.request.response.includes('Duplicate')){
                 toast.error('This title has already been used try a different one')
@@ -64,7 +66,15 @@
 
             }
         })
-    }
+        },
+
+        extend : [
+        validator({schema}), reporter
+        ]
+    })
+
+    
+   
 </script>
 
 <Toaster/>
@@ -73,42 +83,49 @@
 
     <Heading tag='h6' class='text-center mb-5'>Add Book</Heading>
 
-    <form on:submit|preventDefault={handleAddBook} class="mx-10 grid grid-row-2 gap-5 md:mx-24 lg:mx-52">
+    <form use:form class="mx-10 grid grid-row-2 gap-5 md:mx-24 lg:mx-52">
 
         <div>
             <Label for='title'>Book title</Label>
-            <Input id='title' placeholder='Grief Child' bind:value={BOOKFORM.title} required />
+            <Input id='title' placeholder='Grief Child' name ='title' required />
+            <ValidationMessage for ='title' let:messages={message}>
+                {#if message}
+                <Alert class='mt-2'>
+                    <span>{message || ''}</span>
+                </Alert>
+                {/if}
+            </ValidationMessage>
 
-            {#if isFail && bookValidator.titleValidator.length != 0}
-            <Alert color="red" dismissable class='mt-2'>
-                <InfoCircleSolid slot="icon" class="w-4 h-4" />
-                 {bookValidator.titleValidator}
-                <Button slot="close-button" size="xs" let:close on:click={close} class="ml-auto">X</Button>
-              </Alert>
-            {/if}
+            
         </div>
 
         <div>
-            <Label for='title'>Book Genre</Label>
-           <Select bind:value={BOOKFORM.genre} required >
+            <Label for='genre'>Book Genre</Label>
+           <Select name='genre' required >
             {#each Categories as {genre, id} (id) }
                 <option value={genre}>{genre}</option>
             {/each}
            </Select>
+           <ValidationMessage for ='genre' let:messages={message}>
+            {#if message}
+            <Alert class='mt-2'>
+                <span>{message || ''}</span>
+            </Alert>
+            {/if}
+        </ValidationMessage>
         </div>
 
         
         <div>
             <Label for='content'>Book Content</Label>
-            <Textarea id='content' placeholder='Book content' rows='4' bind:value={BOOKFORM.content} required />
-            
-            {#if isFail && bookValidator.contentValidator.length != 0}
-            <Alert color="red" dismissable class='mt-2'>
-                <InfoCircleSolid slot="icon" class="w-4 h-4" />
-                 {bookValidator.contentValidator}
-                <Button slot="close-button" size="xs" let:close on:click={close} class="ml-auto">X</Button>
-              </Alert>
-            {/if}
+            <Textarea id='content' placeholder='Book content' rows='4' name='content' required />
+            <ValidationMessage for ='content' let:messages={message}>
+                {#if message}
+                <Alert class='mt-2'>
+                    <span>{message || ''}</span>
+                </Alert>
+                {/if}
+            </ValidationMessage>
         </div>
 
 
@@ -120,7 +137,7 @@
     {:else}
     
     
-    <Button type='submit'>Add Book</Button>
+    <Button disabled = {$isValid ? false : true} type='submit'>Add Book</Button>
     
         
     {/if}
