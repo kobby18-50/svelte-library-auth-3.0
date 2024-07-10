@@ -5,6 +5,7 @@
 	import type { BOOKS } from "../models/books.js";
   
 	import EmptyCart from "../components/EmptyCart.svelte";
+	import CustomFooter from "../components/CustomFooter.svelte";
 
 
   export let data
@@ -105,6 +106,8 @@
    {/if}
   </div>
   </main>
+
+  <CustomFooter/>
 
   
   
